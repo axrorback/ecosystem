@@ -1,0 +1,11 @@
+.idea
+.env
+db.sqlite3
+users/migrations/*
+department/migrations/*
+meeting/migrations/*
+projects/migrations/*
+private.pem
+public.pem
+testuser.py
+__pycache__
