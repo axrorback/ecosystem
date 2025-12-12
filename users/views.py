@@ -259,13 +259,19 @@ class ProfileView(GenericAPIView):
     def get(self,request):
         user = request.user
         return Response({
-            'id':user.id,
-            'username':user.username,
-            'email':user.email,
-            'is_active':user.is_active,
-            'first_name':user.first_name,
-            'last_name':user.last_name,
-            'date_joined':user.date_joined,
+            'status':True,
+            'statusCode':status.HTTP_200_OK,
+            'data':{
+                'username':user.username,
+                'email':user.email,
+                'first_name':user.first_name if user.first_name is not None else 'Not set',
+                'last_name':user.last_name if user.last_name is not None else 'Not set',
+                'phone_number':user.phone_number if user.phone_number is not None else 'Not set',
+                'telegram_id':user.telegram_id if user.telegram_id is not None else 'Not set',
+                'role':user.role,
+                'date_joined':str(user.date_joined),
+            }
+
         })
 
 class ChangeProfileView(GenericAPIView):
