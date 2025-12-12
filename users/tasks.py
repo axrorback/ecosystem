@@ -11,3 +11,22 @@ def mail_task(email,otp):
     send_mail(subject,message,from_email,recipient_list)
     return f'Email jonatildi {email}'
 
+
+@shared_task
+def new_mail(email, code, user_id):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+
+    user = User.objects.get(id=user_id)
+
+    subject = 'OTP for Verify NewEmail(CODERBOYS)'
+    message = (
+        f"Assalomu aleykum Hurmatli {user.username},\n"
+        f"Siz emailingizni o'zgartirdingiz.\n"
+        f"Yangi emailni tasdiqlash kodi: {code}\n"
+        f"Kod 5 daqiqa amal qiladi."
+    )
+
+    send_mail(subject, message, settings.EMAIL_HOST_USER, [email])
+
+    return f"Yangi emailni tasdiqlash kodi {code} jo‘natildi"

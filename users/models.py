@@ -47,3 +47,9 @@ class OTP(models.Model):
 class TwoFactorOTP(models.Model):
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE)
     otp = models.CharField(max_length=6)
+
+class PendingEmailChange(models.Model):
+    user = models.OneToOneField(CustomUser,on_delete=models.CASCADE)
+    new_email = models.EmailField(verbose_name='New Email'),
+    code = models.CharField(max_length=10,verbose_name='Verification Code')
+    created_at = models.DateTimeField(auto_now_add=True)
