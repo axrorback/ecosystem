@@ -270,7 +270,7 @@ class ProfileView(GenericAPIView):
 
 class ChangeProfileView(GenericAPIView):
     http_method_names = ['patch']
-    serializer_class = ChangePasswordSerializer
+    serializer_class = ChangeProfileSerializer
     @swagger_auto_schema(tags=['Authentication'])
     def patch(self,request):
         serializer = self.get_serializer(data=request.data)
