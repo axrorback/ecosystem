@@ -51,6 +51,8 @@ class LoginView(GenericAPIView):
         refresh['last_name'] = str(user.last_name)
         refresh['email'] = str(user.email)
         refresh['date_joined'] = str(user.date_joined)
+        refresh['last_login'] = str(user.last_login)
+        refresh['permissions'] = str(user.permissions)
         return Response({
             'status':True,
             'statusCode':status.HTTP_200_OK,
@@ -268,9 +270,13 @@ class ProfileView(GenericAPIView):
                 'last_name':user.last_name if user.last_name is not None else 'Not set',
                 'phone_number':user.phone_number if user.phone_number is not None else 'Not set',
                 'telegram_id':user.telegram_id if user.telegram_id is not None else 'Not set',
-                'role':user.role,
+                'role':str(user.role),
                 'date_joined':str(user.date_joined),
-            }
+                'last_login':str(user.last_login),
+                'is_2fa_enabled':user.is_2fa_enabled if user.is_2fa_enabled is not None else 'Not set',
+                'permissions':str(user.permissions),
+            },
+            'timestamp':datetime.now()
 
         })
 
