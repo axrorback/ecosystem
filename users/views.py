@@ -14,52 +14,20 @@ from rest_framework.generics import GenericAPIView
 class LoginView(GenericAPIView):
     http_method_names = ['post']
     permission_classes = [AllowAny]
-    serializer_class = LoginSerializers
+    serializer_class = LoginSerializer
+
     @swagger_auto_schema(tags=['Authentication'])
-    def post(self,request):
+    def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        username = serializer.validated_data['username']
-        password = serializer.validated_data['password']
-        try:
-            user = CustomUser.objects.get(username=username)
-        except CustomUser.DoesNotExist:
-            return Response({
-                'status':False,
-                'statusCode':status.HTTP_400_BAD_REQUEST,
-                'message': 'Bad Request',
-                'timestamp':datetime.now()
-            })
-        if not user.is_active:
-            return Response({
-                'status':False,
-                'statusCode':status.HTTP_400_BAD_REQUEST,
-                'message': 'User is not active',
-                'timestamp':datetime.now()
-            })
-        if not user.check_password(password):
-            return Response({
-                'status':False,
-                'statusCode':status.HTTP_401_UNAUTHORIZED,
-                'message': 'Username or Password is incorrect',
-                'timestamp':datetime.now()
-            })
-        refresh = RefreshToken.for_user(user)
-        refresh['role'] = str(user.role)
-        refresh['username'] = str(user.username)
-        refresh['first_name'] = str(user.first_name)
-        refresh['last_name'] = str(user.last_name)
-        refresh['email'] = str(user.email)
-        refresh['date_joined'] = str(user.date_joined)
-        refresh['last_login'] = str(user.last_login)
-        refresh['permissions'] = str(user.permissions)
+
         return Response({
-            'status':True,
-            'statusCode':status.HTTP_200_OK,
-            'message':'Login successfully',
-            'refresh':str(refresh),
-            'access':str(refresh.access_token),
-            'timestamp':datetime.now()
+            "status": True,
+            "statusCode": status.HTTP_200_OK,
+            "message": "Login successfully",
+            "refresh": serializer.validated_data['refresh'],
+            "access": serializer.validated_data['access'],
+            "timestamp": datetime.now()
         })
 
 class SendOTPView(GenericAPIView):
