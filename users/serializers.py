@@ -2,7 +2,8 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 User = get_user_model()
-
+from django.contrib.auth.models import update_last_login
+from django.utils import timezone
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
@@ -27,7 +28,8 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError({
                 "detail": "Username or password is incorrect"
             })
-
+        update_last_login(None,user)
+        local_time = timezone.localtime(user.last_login)
         refresh = RefreshToken.for_user(user)
 
         refresh['role'] = str(user.role)
@@ -35,8 +37,17 @@ class LoginSerializer(serializers.Serializer):
         refresh['first_name'] = user.first_name
         refresh['last_name'] = user.last_name
         refresh['email'] = user.email
+        refresh['phone_number'] = user.phone_number
         refresh['date_joined'] = str(user.date_joined)
-        refresh['last_login'] = str(user.last_login)
+        refresh['last_login'] = str(local_time.strftime('%Y-%m-%d %H:%M:%S'))
+        refresh['created_departments'] = [
+            {"id": str(dept.id), "code": dept.code, "name": dept.name}
+            for dept in user.created_departments.all()
+        ]
+        refresh['member_departments'] = [
+            {"id": str(dept.id), "code": dept.code, "name": dept.name}
+            for dept in user.department.all()
+        ]
         return {
             "user": user,
             "refresh": str(refresh),

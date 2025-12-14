@@ -7,17 +7,17 @@ from django.contrib.auth.admin import UserAdmin
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
 
-
     list_display = ('username', 'first_name','email', 'role', 'is_active', 'is_staff')
     list_filter = ('role', 'is_active', 'is_staff')
-
-
     search_fields = ('username', 'email')
     ordering = ('-id',)
 
+    # Admin change page da department qo‘shish uchun
+    filter_horizontal = ('department',)  # ManyToMany uchun chiroyli widget
+
     fieldsets = (
         (None, {
-            'fields': ('username', 'email', 'password','first_name','last_name')
+            'fields': ('username', 'email', 'password','first_name','last_name', 'department')  # <-- qo‘shildi
         }),
         ('Permissions', {
             'fields': ('role', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
@@ -27,18 +27,13 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
-    # Qoshish
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2', 'role', 'is_active'),
+            'fields': ('username', 'email', 'password1', 'password2', 'role', 'is_active', 'departments'),  # <-- qo‘shildi
         }),
     )
 
-    def get_readonly_fields(self, request, obj=None):
-        if obj:
-            return ('username', 'email', 'last_login', 'date_joined')
-        return ()
 
 @admin.register(OTP)
 class OTPAdmin(admin.ModelAdmin):
