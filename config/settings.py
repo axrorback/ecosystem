@@ -154,7 +154,7 @@ EMAIL_PORT = 587                     # Use 587 for TLS, 465 for SSL
 EMAIL_USE_TLS = True                 # Use TLS (True if using port 587)
 EMAIL_USE_SSL = False                # Use SSL (True if using port 465)
 EMAIL_HOST_USER = 'service.coderboys@gmail.com'
-EMAIL_HOST_PASSWORD = 'cnma bssl ffba mrbw' # Use an App Password, not your regular password
+EMAIL_HOST_PASSWORD = os.getenv('MAIL_PASSWORD') # Use an App Password, not your regular password
 
 
 
