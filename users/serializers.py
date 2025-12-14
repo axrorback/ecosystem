@@ -37,7 +37,6 @@ class LoginSerializer(serializers.Serializer):
         refresh['email'] = user.email
         refresh['date_joined'] = str(user.date_joined)
         refresh['last_login'] = str(user.last_login)
-        refresh['permissions'] = str(user.permissions)
         return {
             "user": user,
             "refresh": str(refresh),

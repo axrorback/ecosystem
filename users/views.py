@@ -1,6 +1,8 @@
 from .models import CustomUser , OTP , PendingEmailChange
 from .serializers import *
-from datetime import  timedelta , datetime , timezone
+from datetime import    datetime
+from django.utils import timezone
+from datetime import timedelta
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken , OutstandingToken , BlacklistedToken
@@ -33,7 +35,7 @@ class LoginView(GenericAPIView):
 class SendOTPView(GenericAPIView):
     http_method_names = ['post']
     permission_classes = [AllowAny]
-    serializer_class = VerifyOTPSerializer
+    serializer_class = VerifyAccountSerializer
     @swagger_auto_schema(tags=['Authentication'])
     def post(self,request):
         serializer = self.get_serializer(data=request.data)
@@ -56,7 +58,7 @@ class SendOTPView(GenericAPIView):
                 })
             otp = generate_otp()
             email  = user.email
-            mail_task.delay(otp,email)
+            mail_task.delay(email,otp)
             OTP.objects.create(user=user,otp=otp,purpose='verify')
             return Response({
                 'status': True,
@@ -69,39 +71,49 @@ class VerifyOTPView(GenericAPIView):
     http_method_names = ['post']
     permission_classes = [AllowAny]
     serializer_class = VerifyOTPSerializer
+
     @swagger_auto_schema(tags=['Authentication'])
-    def post(self,request):
+    def post(self, request):
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            otp = serializer.validated_data['otp']
-            try:
-                obj_otp = OTP.objects.filter(otp=otp,purpose='verify',is_used=False).first()
-            except OTP.DoesNotExist:
-                return Response({
-                    'status': False,
-                    'statusCode': status.HTTP_400_BAD_REQUEST,
-                    'message': 'Invalid OTP',
-                    'timestamp': datetime.now()
-                })
-            if timezone.now() - obj_otp.created_at >  timedelta(minutes=5):
-                return Response({
-                    'status': False,
-                    'statusCode': status.HTTP_400_BAD_REQUEST,
-                    'message': 'OTP expired',
-                    'timestamp': datetime.now()
-                })
-            user = obj_otp.user
-            user.is_active = True
-            user.save()
-            obj_otp.is_used = True
-            obj_otp.save()
+        serializer.is_valid(raise_exception=True)
+
+        otp = serializer.validated_data['otp']
+
+        obj_otp = OTP.objects.filter(
+            otp=otp,
+            purpose='verify',
+            is_used=False
+        ).first()
+
+        if not obj_otp:
             return Response({
-                'status': True,
-                'statusCode': status.HTTP_200_OK,
-                'message': 'Your account verified successfully you can login now',
-                'timestamp': datetime.now()
+                'status': False,
+                'statusCode': status.HTTP_400_BAD_REQUEST,
+                'message': 'Invalid OTP',
+                'timestamp': timezone.now()
             })
 
+        if timezone.now() - obj_otp.created_at > timedelta(minutes=5):
+            return Response({
+                'status': False,
+                'statusCode': status.HTTP_400_BAD_REQUEST,
+                'message': 'OTP expired',
+                'timestamp': timezone.now()
+            })
+
+        user = obj_otp.user
+        user.is_active = True
+        user.save(update_fields=['is_active'])
+
+        obj_otp.is_used = True
+        obj_otp.save(update_fields=['is_used'])
+
+        return Response({
+            'status': True,
+            'statusCode': status.HTTP_200_OK,
+            'message': 'Your account verified successfully. You can login now.',
+            'timestamp': timezone.now()
+        })
 
 class ChangePasswordView(GenericAPIView):
     http_method_names = ['post']
@@ -242,7 +254,15 @@ class ProfileView(GenericAPIView):
                 'date_joined':str(user.date_joined),
                 'last_login':str(user.last_login),
                 'is_2fa_enabled':user.is_2fa_enabled if user.is_2fa_enabled is not None else 'Not set',
-                'permissions':str(user.permissions),
+                'created_departments': [
+                    {"id": str(dept.id), "code": dept.code, "name": dept.name}
+                    for dept in user.created_departments.all()
+                ],
+                'member_departments': [
+                    {"id": str(dept.id), "code": dept.code, "name": dept.name}
+                    for dept in user.department.all()
+                ],
+
             },
             'timestamp':datetime.now()
 

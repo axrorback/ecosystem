@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 
+from django.conf.global_settings import EMAIL_BACKEND
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 import os
@@ -100,8 +102,8 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('Bearer',)
 }
-
-
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -144,6 +146,17 @@ TIME_ZONE = 'Asia/Tashkent'
 USE_I18N = True
 
 USE_TZ = True
+
+# settings.py
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'        # Your provider's SMTP server
+EMAIL_PORT = 587                     # Use 587 for TLS, 465 for SSL
+EMAIL_USE_TLS = True                 # Use TLS (True if using port 587)
+EMAIL_USE_SSL = False                # Use SSL (True if using port 465)
+EMAIL_HOST_USER = 'service.coderboys@gmail.com'
+EMAIL_HOST_PASSWORD = 'cnma bssl ffba mrbw' # Use an App Password, not your regular password
+
+
 
 
 # Static files (CSS, JavaScript, Images)

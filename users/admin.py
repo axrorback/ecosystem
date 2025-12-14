@@ -1,9 +1,97 @@
 from django.contrib import admin
-from rest_framework_simplejwt.tokens import OutstandingToken , BlacklistedToken
-from .models import CustomUser , ModelPermissions , OTP , TwoFactorOTP , PendingEmailChange
+from .models import CustomUser ,  OTP , TwoFactorOTP , PendingEmailChange
+from django.contrib.auth.admin import UserAdmin
 
 
-@admin.register(ModelPermissions)
-class ModelPermissionAdmin(admin.ModelAdmin):
-    list_display = ('user', 'app_label', 'model_name', 'permission')
-    list_filter = ('app_label', 'model_name', 'permission')
+@admin.register(CustomUser)
+class CustomUserAdmin(UserAdmin):
+    model = CustomUser
+
+
+    list_display = ('username', 'first_name','email', 'role', 'is_active', 'is_staff')
+    list_filter = ('role', 'is_active', 'is_staff')
+
+
+    search_fields = ('username', 'email')
+    ordering = ('-id',)
+
+    fieldsets = (
+        (None, {
+            'fields': ('username', 'email', 'password','first_name','last_name')
+        }),
+        ('Permissions', {
+            'fields': ('role', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
+        }),
+        ('Important dates', {
+            'fields': ('last_login', 'date_joined')
+        }),
+    )
+
+    # Qoshish
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('username', 'email', 'password1', 'password2', 'role', 'is_active'),
+        }),
+    )
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ('username', 'email', 'last_login', 'date_joined')
+        return ()
+
+@admin.register(OTP)
+class OTPAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'purpose',
+        'otp',
+        'is_used',
+        'created_at',
+    )
+
+    list_filter = (
+        'purpose',
+        'is_used',
+        'created_at',
+    )
+
+    search_fields = (
+        'user__username',
+        'user__email',
+    )
+
+    ordering = ('-created_at',)
+
+    readonly_fields = (
+        'otp',
+        'created_at',
+        'user',
+        'otp',
+        'is_used',
+        'created_at',
+        'purpose',
+    )
+
+@admin.register(PendingEmailChange)
+class PendingEmailChangeAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'new_email',
+        'created_at',
+    )
+
+    search_fields = (
+        'user__username',
+        'user__email',
+        'new_email',
+    )
+
+    ordering = ('-created_at',)
+
+    readonly_fields = (
+        'user',
+        'new_email',
+        'code',
+        'created_at',
+    )

@@ -5,25 +5,6 @@ from django.core.validators import RegexValidator
 username_validator = RegexValidator(regex=r'^CB[0-9]{2}[A-Z]{3}[0-9]{3}$',message='Username formati CB24DEV001 kabi bolishi kerak!')
 phone_validator = RegexValidator(regex=r'^\+998[0-9]{9}$',message='Telefon raqam faqat Ozbekiston regioni uchun amal qiladi! format (+998931004005 kbi kiriting)')
 
-
-PERMISSION_CHOICES = [
-    ('full','Full Access'),
-    ('read','Read Only'),
-    ('add','Add Only'),
-    ('no','No Permission')
-]
-
-class ModelPermissions(models.Model):
-    app_label = models.CharField(max_length=100)
-    model_name = models.CharField(max_length=100)
-    permission = models.CharField(max_length=20, choices=PERMISSION_CHOICES, default='read')
-
-    def __str__(self):
-        return f"{self.app_label}.{self.model_name} ({self.permission})"
-
-
-
-
 roles = (
     ('super','SuperAdmin'),
     ('manager','Manager'),
@@ -42,8 +23,7 @@ class CustomUser(AbstractUser):
     is_active = models.BooleanField(default=False)
     role = models.CharField(max_length=10,choices=roles,default='simpleuser')
     is_2fa_enabled = models.BooleanField(default=False)
-    permissions = models.ManyToManyField(ModelPermissions,blank=True,related_name='permissions')
-
+    department = models.ManyToManyField('department.Department',related_name='members',blank=True)
     class Meta:
         ordering = ['username']
 
@@ -71,6 +51,6 @@ class TwoFactorOTP(models.Model):
 
 class PendingEmailChange(models.Model):
     user = models.OneToOneField(CustomUser,on_delete=models.CASCADE)
-    new_email = models.EmailField(verbose_name='New Email'),
+    new_email = models.EmailField(verbose_name='New Email')
     code = models.CharField(max_length=10,verbose_name='Verification Code')
     created_at = models.DateTimeField(auto_now_add=True)
