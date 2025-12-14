@@ -7,32 +7,31 @@ from django.contrib.auth.admin import UserAdmin
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
 
-    list_display = ('username', 'first_name','email', 'role', 'is_active', 'is_staff')
+    list_display = ('username', 'first_name', 'email','role','get_departments', 'is_active', 'is_staff')
     list_filter = ('role', 'is_active', 'is_staff')
     search_fields = ('username', 'email')
     ordering = ('-id',)
-
-    # Admin change page da department qo‘shish uchun
-    filter_horizontal = ('department',)  # ManyToMany uchun chiroyli widget
+    filter_horizontal = ('department',)
 
     fieldsets = (
-        (None, {
-            'fields': ('username', 'email', 'password','first_name','last_name', 'department')  # <-- qo‘shildi
-        }),
-        ('Permissions', {
-            'fields': ('role', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
-        }),
-        ('Important dates', {
-            'fields': ('last_login', 'date_joined')
-        }),
+        (None, {'fields': ('username', 'email', 'password', 'first_name', 'last_name', 'department')}),
+        ('Permissions', {'fields': ('role', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
 
     add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('username', 'email', 'password1', 'password2', 'role', 'is_active', 'departments'),  # <-- qo‘shildi
-        }),
+        (None, {'classes': ('wide',), 'fields': ('username', 'email', 'password1', 'password2', 'role', 'is_active', 'department')}),
     )
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ('username', 'email', 'last_login', 'date_joined')
+        return ()
+
+    def get_departments(self, obj):
+        return ", ".join([dept.name for dept in obj.department.all()])
+
+    get_departments.short_description = 'Departments'
 
 
 @admin.register(OTP)
