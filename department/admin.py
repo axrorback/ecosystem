@@ -3,6 +3,7 @@ from .models import Department
 
 @admin.register(Department)
 class DepartmentAdmin(admin.ModelAdmin):
+    exclude = ('created_by',)
     list_display = (
         'code',
         'name',
@@ -26,7 +27,7 @@ class DepartmentAdmin(admin.ModelAdmin):
         return ()
 
     def save_model(self, request, obj, form, change):
-        if not obj.pk:
+        if not change:
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
 
