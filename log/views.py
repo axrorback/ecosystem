@@ -93,7 +93,8 @@ class UserSearchListView(GenericAPIView):
                 'status': False,
                 'statusCode': status.HTTP_404_NOT_FOUND,
                 'message': 'Foydalanuvchi topilmadi',
-            }, status=status.HTTP_404_NOT_FOUND)
+                'timestamp': datetime.now(),
+            })
 
         serializer = self.get_serializer(queryset, many=True)
 
@@ -102,6 +103,7 @@ class UserSearchListView(GenericAPIView):
             'statusCode': status.HTTP_200_OK,
             'message': 'Foydalanuvchilar ro‘yxati',
             'count': queryset.count(),
-            'data': serializer.data
-        }, status=status.HTTP_200_OK)
+            'data': serializer.data,
+            'timestamp': datetime.now(),
+        })
 
