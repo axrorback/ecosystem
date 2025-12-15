@@ -3,4 +3,5 @@ from .views import *
 
 urlpatterns = [
     path('users/user-stat/',UserCountView.as_view()),
+    path('users/search/', UserSearchListView.as_view()),
 ]

@@ -1,15 +1,14 @@
 import django_filters
-from django.shortcuts import render
 from rest_framework.generics import GenericAPIView
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status , filters
 from users.models import CustomUser
 from datetime import datetime
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import generics
-from .serializers import UserCountSerializer
-from .permissions import IsDev, IsCEO, IsManager, IsSuperUser, IsSimpleUser
+from .serializers import UserSerializer
+from .permissions import IsCEO, IsSuperUser
+from django_filters.rest_framework import DjangoFilterBackend
+from drf_yasg import openapi
 
 class UserCountView(GenericAPIView):
     http_method_names = ['get']
@@ -47,3 +46,62 @@ class UserCountView(GenericAPIView):
             'data': data,
             'timestamp': datetime.now(),
         })
+
+class UserSearchListView(GenericAPIView):
+    http_method_names = ['get']
+    permission_classes = [IsCEO | IsSuperUser]
+
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
+
+    filter_backends = [
+        filters.SearchFilter,
+        DjangoFilterBackend
+    ]
+
+    search_fields = ['username', 'email']
+    filterset_fields = ['is_active', 'is_staff']
+
+    @swagger_auto_schema(
+        tags=['Log'],
+        manual_parameters=[
+            openapi.Parameter(
+                'search',
+                openapi.IN_QUERY,
+                description="Username yoki email bo‘yicha qidirish",
+                type=openapi.TYPE_STRING
+            ),
+            openapi.Parameter(
+                'is_active',
+                openapi.IN_QUERY,
+                description="Faol userlar",
+                type=openapi.TYPE_BOOLEAN
+            ),
+            openapi.Parameter(
+                'is_staff',
+                openapi.IN_QUERY,
+                description="Staff userlar",
+                type=openapi.TYPE_BOOLEAN
+            ),
+        ]
+    )
+    def get(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        if not queryset.exists():
+            return Response({
+                'status': False,
+                'statusCode': status.HTTP_404_NOT_FOUND,
+                'message': 'Foydalanuvchi topilmadi',
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = self.get_serializer(queryset, many=True)
+
+        return Response({
+            'status': True,
+            'statusCode': status.HTTP_200_OK,
+            'message': 'Foydalanuvchilar ro‘yxati',
+            'count': queryset.count(),
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
