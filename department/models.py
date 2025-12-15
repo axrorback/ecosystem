@@ -1,6 +1,5 @@
 from django.db import models
 import uuid
-from users.models import CustomUser
 from django.core.validators import RegexValidator
 from django.conf import settings
 department_code_validator = RegexValidator(r'^CB[0-9]{2}[A-Z]{3}-DEPT$',message='Department code formati CB24AIM-DEPT kabi bolishi kerak!')
@@ -15,4 +14,4 @@ class Department(models.Model):
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{self.code}-{self.name}'
+        return f'{self.code}'
