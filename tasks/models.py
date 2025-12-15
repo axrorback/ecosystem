@@ -34,10 +34,12 @@ class Task(models.Model):
 
 
 
+
 CHANNEL_CHOICE = (
     ('telegram','Telegram'),
     ('email','Email')
 )
+
 
 
 class TaskNotify(models.Model):
