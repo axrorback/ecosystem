@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework.views import GenericView
+from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.utils import timezone
@@ -11,10 +11,24 @@ from django.db.models import Q
 
 
 
-class TaskList(GenericView):
+class TaskList(GenericAPIView):
     http_method_names = ['get']
-    serializer_class = TaskSerializer
-    data = Task.objects.all()
-    def get_queryset(self):
-        user = self.request.user
-        return Task.objects.filter(Q(department__members=user))
+    @swagger_auto_schema(tags=['Tasks'])
+    def get(self, request):
+        queryset = Task.objects.all()
+        all_tasks = Task.objects.all().count()
+        serializer = TaskSerializer(queryset, many=True)
+        data = {
+            'tasks': serializer.data,
+        }
+        return Response({
+            'status': True,
+            'statusCode': status.HTTP_200_OK,
+            'message': 'Tasks List',
+            'data': data,
+            'total_tasks': all_tasks,
+            'timestamp': datetime.now(),
+        }
+        )
+
+
