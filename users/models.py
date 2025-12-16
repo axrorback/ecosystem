@@ -23,6 +23,7 @@ class CustomUser(AbstractUser):
     is_active = models.BooleanField(default=False)
     role = models.CharField(max_length=10,choices=roles,default='simpleuser')
     is_2fa_enabled = models.BooleanField(default=False)
+    profile_image = models.ImageField(upload_to='profile_images/',blank=True,null=True)
     department = models.ManyToManyField('department.Department',related_name='members',blank=True)
     class Meta:
         ordering = ['username']

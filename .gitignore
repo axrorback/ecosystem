@@ -7,8 +7,6 @@ meeting/migrations/*
 projects/migrations/*
 tasks/migrations/*
 log/migrations/*
-private.pem
-public.pem
 testuser.py
 __pycache__
 venv
