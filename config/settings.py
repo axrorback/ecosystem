@@ -188,23 +188,16 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-AWS_ACCESS_KEY_ID = os.getenv('MINIO_ACCESS_KEY')
-AWS_SECRET_ACCESS_KEY = os.getenv('MINIO_SECRET_KEY')
-
-AWS_STORAGE_BUCKET_NAME = os.getenv('MINIO_BUCKET_NAME')
-
-AWS_S3_ENDPOINT_URL = f"http{'s' if os.getenv('MINIO_USE_SSL') == 'True' else ''}://{os.getenv('MINIO_ENDPOINT')}"
-
-AWS_S3_REGION_NAME = 'us-east-1'  # MinIO uchun majburiy
-AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_ACCESS_KEY_ID = os.getenv("R2_ACCESS_KEY")
+AWS_SECRET_ACCESS_KEY = os.getenv("R2_SECRET_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME = "auto"
+AWS_S3_ENDPOINT_URL = os.getenv("AWS_S3_ENDPOINT_URL")  # https://<account_id>.r2.cloudflarestorage.com
 
 AWS_S3_ADDRESSING_STYLE = "path"
+AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_DEFAULT_ACL = None
 AWS_QUERYSTRING_AUTH = False
-
-MEDIA_URL = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"
 
 GITHUB_CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 GITHUB_CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
