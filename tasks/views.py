@@ -13,7 +13,7 @@ from django.db.models import Q
 
 class TaskList(GenericAPIView):
     http_method_names = ['get']
-    @swagger_auto_schema(tags='Tasks')
+    @swagger_auto_schema(tags=['Tasks'])
     def get(self, request):
         queryset = Task.objects.all()
         all_tasks = Task.objects.all().count()
