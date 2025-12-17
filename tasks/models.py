@@ -17,7 +17,7 @@ PRIORITY_CHOICES = (
 )
 
 class Task(models.Model):
-    id = models.UUIDField(primary_key=True,default=uuid.uuid4(),editable=False)
+    id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     department = models.ForeignKey(Department, on_delete=CASCADE,related_name='tasks')
@@ -43,6 +43,7 @@ CHANNEL_CHOICE = (
 
 
 class TaskNotify(models.Model):
+    id = models.UUIDField(primary_key=True,default=uuid.uuid4,editable=False)
     task = models.ForeignKey(Task,on_delete=CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=CASCADE)
     channel = models.CharField(max_length=12,choices=CHANNEL_CHOICE)

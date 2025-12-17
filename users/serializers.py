@@ -111,13 +111,15 @@ class ChangeProfileSerializer(serializers.Serializer):
     last_name = serializers.CharField(max_length=25, required=False)
     email = serializers.EmailField(required=False)
     phone_number = serializers.CharField(max_length=13, required=False)
+    telegram_id = serializers.CharField(max_length=13, required=False)
 
     def validate(self, data):
         if not any([
             data.get('first_name'),
             data.get('last_name'),
             data.get('email'),
-            data.get('phone_number')
+            data.get('phone_number'),
+            data.get('telegram_id')
         ]):
             raise serializers.ValidationError("At least one field is required.")
         return data
