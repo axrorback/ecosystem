@@ -5,7 +5,7 @@ from django.utils import timezone
 from datetime import timedelta
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework_simplejwt.tokens import RefreshToken , OutstandingToken , BlacklistedToken
+from rest_framework_simplejwt.tokens import OutstandingToken , BlacklistedToken
 from .utils import generate_otp
 from .tasks import mail_task , new_mail
 from rest_framework.permissions import AllowAny
@@ -250,6 +250,7 @@ class ProfileView(GenericAPIView):
                 'last_name':user.last_name if user.last_name is not None else 'Not set',
                 'phone_number':user.phone_number if user.phone_number is not None else 'Not set',
                 'telegram_id':user.telegram_id if user.telegram_id is not None else 'Not set',
+                'profile_image_url':str(user.profile_image.url if user.profile_image.url is not None else 'Not set'),
                 'role':str(user.role),
                 'date_joined':str(user.date_joined),
                 'last_login':str(user.last_login),

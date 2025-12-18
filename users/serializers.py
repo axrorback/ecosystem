@@ -106,12 +106,24 @@ class VerifyOTPForForgotPasswordSerializer(serializers.Serializer):
         return data
 
 
+def validate_image(image):
+    max_size = 2 * 1024 * 1024  # 2MB
+    if image.size > max_size:
+        raise serializers.ValidationError("Image size should not exceed 2MB.")
+
+    valid_extensions = ['jpeg', 'jpg', 'png']
+    extension = image.name.split('.')[-1].lower()
+    if extension not in valid_extensions:
+        raise serializers.ValidationError("Only .jpeg, .jpg, .png files are allowed.")
+    return image
+
 class ChangeProfileSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=25, required=False)
     last_name = serializers.CharField(max_length=25, required=False)
     email = serializers.EmailField(required=False)
     phone_number = serializers.CharField(max_length=13, required=False)
     telegram_id = serializers.CharField(max_length=13, required=False)
+    profile_image = serializers.ImageField(required=False, validators=[validate_image])  # <-- validator shu yerga qo‘yiladi
 
     def validate(self, data):
         if not any([
@@ -119,11 +131,11 @@ class ChangeProfileSerializer(serializers.Serializer):
             data.get('last_name'),
             data.get('email'),
             data.get('phone_number'),
-            data.get('telegram_id')
+            data.get('telegram_id'),
+            data.get('profile_image')
         ]):
             raise serializers.ValidationError("At least one field is required.")
         return data
-
 
 class ChangeEmailVerifySerializer(serializers.Serializer):
     code = serializers.CharField(max_length=6,required=True)

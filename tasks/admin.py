@@ -33,7 +33,6 @@ class TaskAdmin(admin.ModelAdmin):
 @admin.register(TaskNotify)
 class TaskNotifyAdmin(admin.ModelAdmin):
     list_display = (
-        'id',
         'task',
         'user',
         'channel',

@@ -25,6 +25,10 @@ class CustomUser(AbstractUser):
     is_2fa_enabled = models.BooleanField(default=False)
     profile_image = models.ImageField(upload_to='profile_images/',blank=True,null=True)
     department = models.ManyToManyField('department.Department',related_name='members',blank=True)
+    github_username = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    github_id = models.PositiveBigIntegerField(blank=True, null=True, unique=True)
+
+
     class Meta:
         ordering = ['username']
 
