@@ -49,7 +49,7 @@ class UserCountView(GenericAPIView):
 
 class UserSearchListView(GenericAPIView):
     http_method_names = ['get']
-    permission_classes = [IsCEO | IsSuperUser]
+    permission_classes = [IsCEO or IsSuperUser]
 
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
