@@ -10,3 +10,4 @@ log/migrations/*
 testuser.py
 __pycache__
 venv
+chat/migrations/*

@@ -28,3 +28,10 @@ def notify_department_members(sender, instance, created, **kwargs):
 
         # Celery job queue
         send_task_notification.delay(notify.id)
+
+@receiver(post_save, sender=Task)
+def close_chat_on_done(sender, instance, **kwargs):
+    if instance.status == 'done':
+        if hasattr(instance, 'chat_room'):
+            instance.chat_room.is_active = False
+            instance.chat_room.save()
