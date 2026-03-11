@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django Channels + DRF Chat Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f4f4f4;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        #chat-log {
+            width: 100%;
+            height: 350px;
+            border: 1px solid #ccc;
+            background: #fafafa;
+            overflow-y: auto;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+        }
+
+        .controls {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input, button {
+            padding: 12px;
+            font-size: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            background: #2563eb;
+            color: white;
+            font-weight: bold;
+        }
+
+        button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .status {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .msg {
+            padding: 8px 10px;
+            margin-bottom: 8px;
+            background: #e9f2ff;
+            border-radius: 8px;
+            word-wrap: break-word;
+        }
+
+        .sys {
+            padding: 8px 10px;
+            margin-bottom: 8px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            color: #444;
+            font-style: italic;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Task Chat Test</h2>
+
+    <div class="controls">
+        <input type="text" id="token" placeholder="JWT Token kiriting (Bearer siz)">
+        <input type="text" id="task-id" placeholder="Task UUID kiriting">
+        <button onclick="connect()">Connect & Load History</button>
+    </div>
+
+    <div class="status">
+        Status: <span id="status" style="color: red;">Disconnected</span>
+    </div>
+
+    <div id="chat-log"></div>
+
+    <div class="controls">
+        <div class="row">
+            <input type="text" id="message-input" placeholder="Xabar yozing..." onkeypress="handleEnter(event)">
+            <button id="send-btn" onclick="sendMessage()" disabled>Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let chatSocket = null;
+
+    const HTTP_BASE = "http://127.0.0.1:8000";
+    const WS_BASE = "ws://127.0.0.1:8000";
+
+    function setStatus(text, color = "red") {
+        const statusEl = document.getElementById("status");
+        statusEl.innerText = text;
+        statusEl.style.color = color;
+    }
+
+    function appendMessage(msg, type = "msg") {
+        const log = document.getElementById("chat-log");
+        const div = document.createElement("div");
+        div.className = type;
+        div.textContent = msg;
+        log.appendChild(div);
+        log.scrollTop = log.scrollHeight;
+    }
+
+    function clearChat() {
+        document.getElementById("chat-log").innerHTML = "";
+    }
+
+    async function loadHistory(taskId, token) {
+        const historyUrl = `${HTTP_BASE}/api/v1/chat/history/${taskId}/`;
+
+        appendMessage("--- Tarix yuklanmoqda ---", "sys");
+
+        try {
+            const response = await fetch(historyUrl, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                const text = await response.text();
+                appendMessage(`History API xato: ${response.status} - ${text}`, "sys error");
+                return;
+            }
+
+            const data = await response.json();
+
+            let messages = [];
+
+            if (Array.isArray(data)) {
+                messages = data;
+            } else if (Array.isArray(data.results)) {
+                messages = data.results;
+            } else if (Array.isArray(data.data)) {
+                messages = data.data;
+            } else {
+                appendMessage("History format kutilgan ko‘rinishda emas.", "sys error");
+                console.log("History response:", data);
+                return;
+            }
+
+            if (messages.length === 0) {
+                appendMessage("Tarix bo‘sh.", "sys");
+                return;
+            }
+
+            appendMessage("--- Tarix yuklandi ---", "sys success");
+
+            messages.forEach(msg => {
+                const username = msg.user || msg.username || msg.sender || "Unknown";
+                const text = msg.text || msg.message || msg.content || "";
+                appendMessage(`${username}: ${text}`);
+            });
+
+        } catch (error) {
+            console.error("Tarixni yuklashda xato:", error);
+            appendMessage(`Tarixni yuklashda xato: ${error.message}`, "sys error");
+        }
+    }
+
+    function connectWebSocket(taskId, token) {
+        const wsUrl = `${WS_BASE}/ws/tasks/${taskId}/chat/?token=${encodeURIComponent(token)}`;
+
+        appendMessage(`WS ulanmoqda: ${wsUrl}`, "sys");
+
+        chatSocket = new WebSocket(wsUrl);
+
+        chatSocket.onopen = function () {
+            setStatus("Connected", "green");
+            document.getElementById("send-btn").disabled = false;
+            appendMessage("WebSocket ulandi.", "sys success");
+        };
+
+        chatSocket.onmessage = function (event) {
+            try {
+                const data = JSON.parse(event.data);
+                console.log("WS data:", data);
+
+                const username = data.user || data.username || data.sender || "User";
+                const message = data.message || data.text || data.content || JSON.stringify(data);
+
+                appendMessage(`${username}: ${message}`);
+            } catch (error) {
+                console.error("Message parse xato:", error);
+                appendMessage(`Raw message: ${event.data}`, "sys");
+            }
+        };
+
+        chatSocket.onerror = function (error) {
+            console.error("WebSocket error:", error);
+            appendMessage("WebSocket xatolik yuz berdi.", "sys error");
+        };
+
+        chatSocket.onclose = function (event) {
+            setStatus("Disconnected", "red");
+            document.getElementById("send-btn").disabled = true;
+            appendMessage(`WebSocket yopildi. Code: ${event.code}`, "sys error");
+        };
+    }
+
+    async function connect() {
+        const taskId = document.getElementById("task-id").value.trim();
+        const token = document.getElementById("token").value.trim();
+
+        if (!taskId || !token) {
+            alert("Task ID va Tokenni kiriting!");
+            return;
+        }
+
+        if (chatSocket && chatSocket.readyState === WebSocket.OPEN) {
+            chatSocket.close();
+        }
+
+        clearChat();
+        setStatus("Connecting...", "orange");
+
+        await loadHistory(taskId, token);
+        connectWebSocket(taskId, token);
+    }
+
+    function sendMessage() {
+        const input = document.getElementById("message-input");
+        const message = input.value.trim();
+
+        if (!message) {
+            return;
+        }
+
+        if (!chatSocket || chatSocket.readyState !== WebSocket.OPEN) {
+            appendMessage("WebSocket ulanmagan.", "sys error");
+            return;
+        }
+
+        const payload = {
+            message: message
+        };
+
+        chatSocket.send(JSON.stringify(payload));
+        input.value = "";
+    }
+
+    function handleEnter(event) {
+        if (event.key === "Enter") {
+            sendMessage();
+        }
+    }
+</script>
+</body>
+</html>
