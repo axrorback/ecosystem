@@ -4,6 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 User = get_user_model()
 from django.contrib.auth.models import update_last_login
 from django.utils import timezone
+
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
@@ -118,10 +119,10 @@ def validate_image(image):
     return image
 
 class ChangeProfileSerializer(serializers.Serializer):
-    first_name = serializers.CharField(max_length=25, required=False)
-    last_name = serializers.CharField(max_length=25, required=False)
+    first_name = serializers.CharField(min_length=1,max_length=25, required=False)
+    last_name = serializers.CharField(min_length=1,max_length=25, required=False)
     email = serializers.EmailField(required=False)
-    phone_number = serializers.CharField(max_length=13, required=False)
+    phone_number = serializers.CharField(min_length=1,max_length=13, required=False)
     telegram_id = serializers.CharField(max_length=13, required=False)
     profile_image = serializers.ImageField(required=False, validators=[validate_image])  # <-- validator shu yerga qo‘yiladi
 
@@ -144,3 +145,6 @@ class ChangeEmailVerifySerializer(serializers.Serializer):
         if data['code'] is None:
             raise serializers.ValidationError('Code cannot be empty')
         return data
+
+class EnableTWOFASerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=6,required=True)
