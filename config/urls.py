@@ -1,21 +1,6 @@
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from drf_yasg.generators import OpenAPISchemaGenerator
-
-
-class CustomSchemaGenerator(OpenAPISchemaGenerator):
-    def get_schema(self, request=None, public=False):
-        schema = super().get_schema(request, public)
-
-        new_paths = {}
-        for path, path_item in schema.paths.items():
-            new_paths[f"/api/v1{path}"] = path_item
-        schema.paths = new_paths
-
-        schema.servers = [{'url': '/api/v1'}]
-        return schema
-
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -24,9 +9,8 @@ schema_view = get_schema_view(
         description='API Documentation for CODERBOYS EcoSysTem',
         contact=openapi.Contact(email='info@axrorback.uz',name='Ahrorjon Ibrohimjonov',telegram='@axrorback'),
     ),
-    public=True,
-    generator_class=CustomSchemaGenerator,
-    permission_classes=[AllowAny],
+    public=False,
+    permission_classes=[IsAuthenticated],
 )
 
 
