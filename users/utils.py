@@ -6,5 +6,3 @@ def generate_otp():
 
 def generate_2fa_token():
     return token_urlsafe(64)
-
-print(generate_2fa_token())
