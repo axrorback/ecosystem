@@ -12,7 +12,6 @@ from rest_framework.permissions import AllowAny
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.generics import GenericAPIView
 
-
 class LoginView(GenericAPIView):
     http_method_names = ['post']
     permission_classes = [AllowAny]
@@ -240,6 +239,9 @@ class ProfileView(GenericAPIView):
     @swagger_auto_schema(tags=['Authentication'])
     def get(self,request):
         user = request.user
+        profile_image_url = 'Not set'
+        if user.profile_image:
+            profile_image_url = user.profile_image.url
         return Response({
             'status':True,
             'statusCode':status.HTTP_200_OK,
@@ -250,11 +252,12 @@ class ProfileView(GenericAPIView):
                 'last_name':user.last_name if user.last_name is not None else 'Not set',
                 'phone_number':user.phone_number if user.phone_number is not None else 'Not set',
                 'telegram_id':user.telegram_id if user.telegram_id is not None else 'Not set',
-                'profile_image_url':str(user.profile_image.url if user.profile_image.url is not None else 'Not set'),
+                'profile_image_url':str(profile_image_url),
                 'role':str(user.role),
                 'date_joined':str(user.date_joined),
                 'last_login':str(user.last_login),
                 'is_2fa_enabled':user.is_2fa_enabled if user.is_2fa_enabled is not None else 'Not set',
+                'github_username':user.github_username if user.github_username is not None else 'Not set',
                 'created_departments': [
                     {"id": str(dept.id), "code": dept.code, "name": dept.name}
                     for dept in user.created_departments.all()
@@ -341,3 +344,6 @@ class VerifyNewEmailView(GenericAPIView):
                 'message':'Email changed successfully',
                 'timestamp':datetime.now()
             })
+class Enable2FAView(GenericAPIView):
+    http_method_names = ['post']
+    serializer_class = EnableTWOFASerializer
