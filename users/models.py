@@ -53,6 +53,11 @@ class OTP(models.Model):
 class TwoFactorOTP(models.Model):
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE)
     otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.user.username}-{self.otp}'
 
 class PendingEmailChange(models.Model):
     user = models.OneToOneField(CustomUser,on_delete=models.CASCADE)
