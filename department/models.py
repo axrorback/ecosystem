@@ -10,7 +10,7 @@ class Department(models.Model):
     code = models.CharField(max_length=15,unique=True,validators=[department_code_validator])
     name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name='created_departments')
+    created_by = models.ForeignKey('users.CustomUser',on_delete=models.CASCADE,related_name='created_departments')
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
