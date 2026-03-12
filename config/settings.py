@@ -30,16 +30,20 @@ SECRET_KEY = os.getenv('DJANGO_KEY')
 DEBUG = False
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://ecosystem-f41cee9e71e3.herokuapp.com',
+    'https://eco.runcdc.uz',
 
 ]
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:3000',
-    'http://127.0.0.1:3000',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://ecosystem-f41cee9e71e3.herokuapp.com',
+    'https://eco.runcdc.uz',
 
 ]
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost','127.0.0.1','ecosystem-f41cee9e71e3.herokuapp.com','eco.runcdc.uz']
 
 
 # Application definition
