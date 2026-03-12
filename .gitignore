@@ -1,12 +1,6 @@
 .idea
 .env
 db.sqlite3
-users/migrations/*
-department/migrations/*
-meeting/migrations/*
-projects/migrations/*
-tasks/migrations/*
-log/migrations/*
 testuser.py
 __pycache__
 venv
