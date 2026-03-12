@@ -10,7 +10,7 @@ schema_view = get_schema_view(
         contact=openapi.Contact(email='info@axrorback.uz',name='Ahrorjon Ibrohimjonov',telegram='@axrorback'),
     ),
     public=False,
-    permission_classes=[IsAuthenticated],
+    permission_classes=[AllowAny],
 )
 
 
