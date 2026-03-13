@@ -120,12 +120,18 @@ if parsed_url.scheme == "rediss":
     ssl_options = {"ssl": True, "ssl_cert_reqs": None}
 else:
     ssl_options = None
+REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(redis_url, ssl_options)]  # e'tibor bering tuple ichida
+            "hosts": [
+                {
+                    "address": REDIS_URL,
+                    "ssl": True
+                }
+            ],
         },
     },
 }
