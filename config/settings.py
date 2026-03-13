@@ -126,7 +126,11 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [REDIS_URL],  # REDIS_URL = "rediss://:password@host:port"
+            "hosts": [{
+                "address": REDIS_URL,
+                "ssl": True,
+                "ssl_cert_reqs": None,  # sertifikat tekshiruvini o‘chiradi
+            }],
         },
     },
 }
