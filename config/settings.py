@@ -20,6 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 import os
 from dotenv import load_dotenv
 load_dotenv()
+import urllib.parse
 
 ssl_context = ssl.create_default_context()
 ssl_context.check_hostname = False
@@ -112,14 +113,19 @@ WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
 CELERY_BROKER_CONNECTION_RETRY_ON_START = True
+redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379")
+parsed_url = urllib.parse.urlparse(redis_url)
+
+if parsed_url.scheme == "rediss":
+    ssl_options = {"ssl": True, "ssl_cert_reqs": None}
+else:
+    ssl_options = None
+
 CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [{
-                'address': os.environ.get("REDIS_URL"),
-                'ssl': ssl_context,
-            }],
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(redis_url, ssl_options)]  # e'tibor bering tuple ichida
         },
     },
 }
