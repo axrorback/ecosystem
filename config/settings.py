@@ -122,18 +122,27 @@ else:
     ssl_options = None
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
 
+# CHANNEL_LAYERS = {
+#     "default": {
+#         "BACKEND": "channels_redis.core.RedisChannelLayer",
+#         "CONFIG": {
+#             "hosts": [{
+#                 "address": [REDIS_URL],
+#                 "ssl": True,
+#                 "ssl_cert_reqs": None,
+#             }],
+#         },
+#     },
+# }
+
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [{
-                "address": [REDIS_URL],
-                "ssl": True,
-                "ssl_cert_reqs": None,
-            }],
-        },
-    },
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
 }
+
+
+
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
