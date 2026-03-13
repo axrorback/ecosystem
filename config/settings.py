@@ -128,8 +128,7 @@ CHANNEL_LAYERS = {
         "CONFIG": {
             "hosts": [{
                 "address": REDIS_URL,
-                "ssl": True,
-                "ssl_cert_reqs": None,  # sertifikat tekshiruvini o‘chiradi
+                "ssl": ssl_context,  # bool emas, SSLContext object
             }],
         },
     },
