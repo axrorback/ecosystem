@@ -34,6 +34,7 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:5173',
     'https://ecosystem-f41cee9e71e3.herokuapp.com',
     'https://eco.runcdc.uz',
+    'http://127.0.0.1:5000',
 
 ]
 CSRF_TRUSTED_ORIGINS = [
@@ -41,6 +42,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:5173',
     'https://ecosystem-f41cee9e71e3.herokuapp.com',
     'https://eco.runcdc.uz',
+    'http://127.0.0.1:5000',
 
 ]
 ALLOWED_HOSTS = ['localhost','127.0.0.1','ecosystem-f41cee9e71e3.herokuapp.com','eco.runcdc.uz']
