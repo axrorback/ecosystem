@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 import ssl
+from urllib.parse import urlparse
 
 import dj_database_url
 
@@ -120,15 +121,24 @@ if parsed_url.scheme == "rediss":
     ssl_options = {"ssl": True, "ssl_cert_reqs": None}
 else:
     ssl_options = None
+
 REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
+
+redis_url = urlparse(REDIS_URL)
+
+ssl_context = ssl.create_default_context()
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
 
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": [{
-                "address": REDIS_URL,
-                "ssl": ssl_context,  # bool emas, SSLContext object
+                "host": redis_url.hostname,
+                "port": redis_url.port,
+                "password": redis_url.password,
+                "ssl": ssl_context,
             }],
         },
     },
