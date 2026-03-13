@@ -13,6 +13,8 @@ from datetime import timedelta
 from pathlib import Path
 import ssl
 
+import dj_database_url
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 import os
@@ -27,7 +29,7 @@ load_dotenv()
 SECRET_KEY = os.getenv('DJANGO_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
@@ -125,14 +127,11 @@ PASSWORD_HASHERS = [
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-    }
+    "default": dj_database_url.config(
+        default=os.environ.get("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
