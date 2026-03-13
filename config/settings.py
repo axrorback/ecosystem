@@ -21,6 +21,9 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+ssl_context = ssl.create_default_context()
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -115,7 +118,7 @@ CHANNEL_LAYERS = {
         'CONFIG': {
             'hosts': [{
                 'address': os.environ.get("REDIS_URL"),
-                'ssl': False
+                'ssl': ssl_context,
             }],
         },
     },
