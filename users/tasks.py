@@ -5,7 +5,7 @@ from django.conf import settings
 @shared_task()
 def mail_task(email,otp):
     subject = 'OTP for Verify Account(CODERBOYS)'
-    message = f'Assalomu aleykum CODERBOYS ecotizimida akkauntingizni faollashtirish uchun kod {otp}\nKod 5 daqiqa amal qiladi'
+    message = f'Assalomu aleykum CODERBOYS ecotizimida akkauntingizni faollashtirish yoki qayta tiklash uchun kod {otp}\nKod 5 daqiqa amal qiladi'
     from_email = settings.EMAIL_HOST_USER
     recipient_list = [email]
     send_mail(subject,message,from_email,recipient_list)

@@ -177,7 +177,7 @@ class ForgotPasswordView(GenericAPIView):
                 })
             otp = generate_otp()
             email  = user.email
-            mail_task.delay(otp,email)
+            mail_task.delay(email,otp)
             OTP.objects.create(user=user,otp=otp,purpose='forgot')
             return Response({
                 'status': True,
