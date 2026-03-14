@@ -188,6 +188,7 @@ class ForgotPasswordView(GenericAPIView):
 class VerifyForgotView(GenericAPIView):
     http_method_names = ['post']
     permission_classes = [AllowAny]
+    serializer_class = VerifyOTPForForgotPasswordSerializer
     @swagger_auto_schema(tags=['Authentication'])
     def post(self,request):
         serializer = VerifyOTPForForgotPasswordSerializer(data=request.data)
